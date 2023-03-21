@@ -1,8 +1,9 @@
 #![cfg(any(feature = "cuda", feature = "opencl"))]
 
-use std::time::Instant;
 
-use blstrs::Scalar as Fr;
+use std::time::Instant;
+use ark_bls12_377::Scalar as Fr;
+//use blstrs::Scalar as Fr;
 use ec_gpu_gen::{
     fft::FftKernel,
     fft_cpu::{parallel_fft, serial_fft},

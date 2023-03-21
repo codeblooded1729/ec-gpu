@@ -1,4 +1,4 @@
-# `ec-gpu` & `ec-gpu-gen`
+# `ec-gpu` & `ec-gpu-gen` for Bls12-377
 
 [![crates.io][crate-image-ec-gpu]][crate-link-ec-gpu]
 [![Documentation][doc-image-ec-gpu]][doc-link-ec-gpu]
