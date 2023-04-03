@@ -11,6 +11,7 @@
 )]
 
 use ark_crypto_primitives::snark::{CircuitSpecificSetupSNARK, SNARK};
+use ark_ec::pairing::Pairing;
 // For randomness (during paramgen and proof generation)
 use ark_std::rand::{Rng, RngCore, SeedableRng};
 
@@ -19,7 +20,8 @@ use std::time::{Duration, Instant};
 
 // Bring in some tools for using pairing-friendly curves
 // We're going to use the BLS12-377 pairing-friendly elliptic curve.
-use ark_bls12_377::{Bls12_377, Fr};
+use ec_gpu::fr::Curve as Bls12_377;
+type Fr = <Bls12_377 as Pairing>::ScalarField;
 use ark_ff::Field;
 use ark_std::test_rng;
 
