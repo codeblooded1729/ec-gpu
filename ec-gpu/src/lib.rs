@@ -59,3 +59,5 @@ macro_rules! name {
         name.replace(|c: char| !c.is_ascii_alphanumeric(), "_")
     }};
 }
+
+pub mod fr;

@@ -1,9 +1,12 @@
 #[cfg(not(any(feature = "cuda", feature = "opencl")))]
 fn main() {}
 
+use ark_ec::pairing::Pairing;
+
 #[cfg(any(feature = "cuda", feature = "opencl"))]
 fn main() {
-    use ark_bls12_377::Scalar;
+    use ec_gpu::fr::Curve;
+    type Scalar = <Curve as Pairing>::ScalarField;
     //use blstrs::{Fp, Fp2, G1Affine, G2Affine, Scalar};
     use ec_gpu_gen::SourceBuilder;
 

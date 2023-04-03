@@ -2,7 +2,10 @@
 
 
 use std::time::Instant;
-use ark_bls12_377::Scalar as Fr;
+use ark_ec::pairing::Pairing;
+use ec_gpu::fr::Curve;
+
+type Fr = <Curve as Pairing>::ScalarField;
 //use blstrs::Scalar as Fr;
 use ec_gpu_gen::{
     fft::FftKernel,
@@ -10,20 +13,19 @@ use ec_gpu_gen::{
     rust_gpu_tools::Device,
     threadpool::Worker,
 };
-use ff::{Field, PrimeField};
+use ark_ff::{PrimeField};
 
 fn omega<F: PrimeField>(num_coeffs: usize) -> F {
     // Compute omega, the 2^exp primitive root of unity
-    let exp = (num_coeffs as f32).log2().floor() as u32;
-    let mut omega = F::root_of_unity();
-    for _ in exp..F::S {
-        omega = omega.square();
-    }
+    let exp = (num_coeffs as f32).log2().ceil() as u32;
+    let pow = (2 as u64).pow(exp);
+    let omega = F::get_root_of_unity(pow).unwrap();
     omega
 }
 
 #[test]
 pub fn gpu_fft_consistency() {
+    use ark_ff::UniformRand;
     fil_logger::maybe_init();
     let mut rng = rand::thread_rng();
 
@@ -40,7 +42,7 @@ pub fn gpu_fft_consistency() {
     for log_d in 1..=20 {
         let d = 1 << log_d;
 
-        let mut v1_coeffs = (0..d).map(|_| Fr::random(&mut rng)).collect::<Vec<_>>();
+        let mut v1_coeffs = (0..d).map(|_| Fr::rand(&mut rng)).collect::<Vec<_>>();
         let v1_omega = omega::<Fr>(v1_coeffs.len());
         let mut v2_coeffs = v1_coeffs.clone();
         let v2_omega = v1_omega;
@@ -71,6 +73,7 @@ pub fn gpu_fft_consistency() {
 
 #[test]
 pub fn gpu_fft_many_consistency() {
+    use ark_ff::UniformRand;
     fil_logger::maybe_init();
     let mut rng = rand::thread_rng();
 
@@ -87,9 +90,9 @@ pub fn gpu_fft_many_consistency() {
     for log_d in 1..=20 {
         let d = 1 << log_d;
 
-        let mut v11_coeffs = (0..d).map(|_| Fr::random(&mut rng)).collect::<Vec<_>>();
-        let mut v12_coeffs = (0..d).map(|_| Fr::random(&mut rng)).collect::<Vec<_>>();
-        let mut v13_coeffs = (0..d).map(|_| Fr::random(&mut rng)).collect::<Vec<_>>();
+        let mut v11_coeffs = (0..d).map(|_| Fr::rand(&mut rng)).collect::<Vec<_>>();
+        let mut v12_coeffs = (0..d).map(|_| Fr::rand(&mut rng)).collect::<Vec<_>>();
+        let mut v13_coeffs = (0..d).map(|_| Fr::rand(&mut rng)).collect::<Vec<_>>();
         let v11_omega = omega::<Fr>(v11_coeffs.len());
         let v12_omega = omega::<Fr>(v12_coeffs.len());
         let v13_omega = omega::<Fr>(v13_coeffs.len());

@@ -30,9 +30,12 @@ use crate::*;
 #[generator = "22"]
 pub struct FrConfig;
 pub type Fr = Fp256<MontBackend<FrConfig, 4>>;
+
+pub trait Boom{
+    fn boom();
+}
 #[derive(Debug, Default, Eq, PartialEq, Copy, Clone)]
 pub struct Scalar(Fr);
-
 impl Neg for Scalar {
     type Output = Scalar;
 
@@ -247,4 +250,3 @@ impl ec_gpu::GpuField for Scalar {
         vec![1, 168919040, 3489660929, 1504343806, 1547153409, 1622428958, 2586617174, 313222494]
     }
 }
-

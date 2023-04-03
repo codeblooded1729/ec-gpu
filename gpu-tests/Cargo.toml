@@ -14,7 +14,7 @@ publish = false
 [dependencies]
 blstrs = { version = "0.6.0", features = ["__private_bench"] }
 criterion = "0.4"
-ec-gpu = "0.2"
+ec-gpu = { path = "../ec-gpu", default-features = false }
 ec-gpu-gen = { path = "../ec-gpu-gen", default-features = false }
 ff = { version = "0.12.0", default-features = false }
 fil_logger = "0.1.6"
@@ -24,11 +24,13 @@ rand = "0.8"
 rayon = "1.5.3"
 ark-ff = "0.4.2"
 num-bigint = "0.4.3"
+ark-ec = { version = "0.4.0", default-features = false }
 
 [dev-dependencies]
 blstrs = { version = "0.6.0", features = ["__private_bench"] }
+ark-ec = { version = "0.4.0", default-features = false }
 criterion = "0.4"
-ec-gpu = "0.2"
+ec-gpu = { path = "../ec-gpu", default-features = false }
 ec-gpu-gen = { path = "../ec-gpu-gen", default-features = false }
 ff = { version = "0.12.0", default-features = false }
 fil_logger = "0.1.6"
@@ -41,7 +43,9 @@ ark-bls12-377 = { path = "../bls12_377" }
 num-bigint = "0.4.3"
 
 [build-dependencies]
+ark-ec = { version = "0.4.0", default-features = false }
 blstrs = { version = "0.6.0", features = ["__private_bench"] }
+ec-gpu = { path = "../ec-gpu", default-features = false }
 ec-gpu-gen = { path = "../ec-gpu-gen" }
 ark-ff = "0.4.2"
 ark-bls12-377 = { path = "../bls12_377" }

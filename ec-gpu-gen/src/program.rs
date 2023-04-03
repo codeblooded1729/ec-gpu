@@ -40,14 +40,14 @@ macro_rules! program {
             };
 
             match framework {
-                #[cfg(feature = "cuda")]
+                //#[cfg(feature = "cuda")]
                 Framework::Cuda => {
                     let kernel = include_bytes!(env!("_EC_GPU_CUDA_KERNEL_FATBIN"));
                     let cuda_device = device.cuda_device().ok_or(GPUError::DeviceNotFound)?;
                     let program = $crate::rust_gpu_tools::cuda::Program::from_bytes(cuda_device, kernel)?;
                     Ok(Program::Cuda(program))
                 }
-                #[cfg(feature = "opencl")]
+                //#[cfg(feature = "opencl")]
                 Framework::Opencl => {
                     let source = include_str!(env!("_EC_GPU_OPENCL_KERNEL_SOURCE"));
                     let opencl_device = device.opencl_device().ok_or(GPUError::DeviceNotFound)?;

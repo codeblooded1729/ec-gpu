@@ -3,5 +3,7 @@ members = [
   "ec-gpu",
   "ec-gpu-gen",
   "gpu-tests",
+  "p2p",
+  "groth16",
 ]
 resolver = "2"

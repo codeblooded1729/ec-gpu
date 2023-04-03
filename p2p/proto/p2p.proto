@@ -2,7 +2,7 @@
 syntax = "proto3";
 
 // package name for the buffer will be used later
-package p2p;
+package p2p_tonic;
 
 // service which can be executed
 service P2p {
