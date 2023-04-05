@@ -30,9 +30,27 @@ tokio-stream = { version = "0.1.11", features = ["net"] }
 tonic = { version = "0.8.3", features = ["tls", "gzip"] }
 h2 = "0.3"
 uuid = { version = "1.2.2", features = ["v4", "fast-rng"] }
+num-bigint = "0.4.3"
+ark-serialize = { version = "0.4.0", default-features = false, features = [ "derive" ] }
+ark-ec = { version = "0.4.0", default-features = false }
+rand = "^0"
+rand_chacha = "^0"
+ark-std = "0.4.0"
+ark-ff = "0.4.0"
+ec-gpu = { path = "../ec-gpu", default-features = false }
+ingo_x = { path = "../cloud-ZK/rust-bench", default-features = false, features = [ "bls12-377" ]}
+ark-bls12-377 = { version="0.3.0" }
+ark-bls12-377_latest = { package = "ark-bls12-377", version="0.4.0"}
 
 [build-dependencies]
 tonic-build = { version = "0.8.3", features = ["prost"] }
-
+num-bigint = "0.4.3"
+ark-serialize = { version = "0.4.0", default-features = false, features = [ "derive" ] }
+ark-ec = { version = "0.4.0", default-features = false }
 [dev-dependencies]
 hex = "0.4.3"
+rand = "^0"
+rand_chacha = "^0"
+ark-std = "0.4.0"
+ark-ff = "0.4.0"
+ec-gpu = { path = "../ec-gpu", default-features = false }

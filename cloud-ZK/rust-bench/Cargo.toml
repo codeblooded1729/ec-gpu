@@ -1,0 +1,33 @@
+[package]
+name = "ingo_x"
+version = "0.1.2"
+edition = "2021"
+
+[dependencies] #TODO: actually these are all dev-dependencies
+ark-bls12-377 = { version="0.3.0", optional=true }
+ark-bn254 =  { version="0.3.0", optional=true }
+rand = "^0"
+rand_chacha = "^0"
+ark-std = "0.3.0"
+ark-ff = "0.3.0"
+ark-ec = "0.3.0"
+num-bigint = "0.4.3"
+rust-rw-device = { path = "../rust-rw-device", default-features=false, features = [ "bls12-377" ] }
+
+[dev-dependencies]
+criterion = { version = "0.3", features = ["html_reports"] }
+
+[[bench]]
+name = "msm"
+path = "benches/msm.rs"
+harness = false
+
+[[bench]]
+name = "msm_single"
+path = "benches/msm_single.rs"
+harness = false
+
+[features]
+default = [ "bls12-377" ]
+bls12-377 = [ "rust-rw-device/bls12-377" ]
+bn254 = [ "rust-rw-device/bn254" ]

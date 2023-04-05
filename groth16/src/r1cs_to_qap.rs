@@ -205,7 +205,7 @@ impl R1CSToQAP for LibsnarkReduction {
         ifft(&mut kern, &mut a, &omega_inv, log2_n);
         ifft(&mut kern, &mut b, &omega_inv, log2_n);
 
-        let coset_domain = domain.get_coset(F::GENERATOR).unwrap();
+        // let coset_domain = domain.get_coset(F::GENERATOR).unwrap();
 
         // find a(gamma * omega^i) and b(gamma * omega^i)
         // coset_domain.fft_in_place(&mut a);
@@ -350,7 +350,7 @@ fn test_gpu_coset_fft(){
     let d = 16;
     let log_n = 4;
     let mut coeffs = (0..d).map(|_| Fr::rand(&mut rng)).collect::<Vec<_>>();
-    let mut before = coeffs.clone();
+    let before = coeffs.clone();
     let omega = omega::<Fr>(coeffs.len());
     let omega_inv = omega.inverse().unwrap();
     gpu_coset_fft(&mut kern, &mut coeffs, &omega, log_n);

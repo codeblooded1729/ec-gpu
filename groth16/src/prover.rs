@@ -6,12 +6,14 @@ use ark_relations::r1cs::{
     ConstraintMatrices, ConstraintSynthesizer, ConstraintSystem, OptimizationGoal,
     Result as R1CSResult,
 };
+use ark_serialize::{CanonicalSerialize, CanonicalDeserialize};
 use ark_std::rand::Rng;
 use ark_std::{
     cfg_into_iter, cfg_iter,
     ops::{AddAssign, Mul},
     vec::Vec,
 };
+use num_bigint::BigUint;
 
 use ec_gpu::GpuField;
 #[cfg(feature = "parallel")]
@@ -66,15 +68,16 @@ where E::ScalarField : GpuField {
             .map(|s| s.into_bigint())
             .collect::<Vec<_>>();
         let h_acc = E::G1::msm_bigint(&pk.h_query, &h_assignment);
+        let h_acc = cloud_msm::<E>(&pk.h_query, &h.to_vec());
         drop(h_assignment);
 
         // Compute C
-        let aux_assignment = cfg_iter!(aux_assignment)
+        let aux_assignment_field = cfg_iter!(aux_assignment)
             .map(|s| s.into_bigint())
             .collect::<Vec<_>>();
 
-        let l_aux_acc = E::G1::msm_bigint(&pk.l_query, &aux_assignment);
-
+        // let l_aux_acc = E::G1::msm_bigint(&pk.l_query, &aux_assignment);
+        let l_aux_acc = cloud_msm::<E>(&pk.l_query, &aux_assignment.to_vec());
         let r_s_delta_g1 = pk
             .delta_g1
             .into_group()
@@ -88,7 +91,7 @@ where E::ScalarField : GpuField {
             .map(|s| s.into_bigint())
             .collect::<Vec<_>>();
 
-        let assignment = [&input_assignment[..], &aux_assignment[..]].concat();
+        let assignment = [&input_assignment[..], &aux_assignment_field[..]].concat();
         drop(aux_assignment);
 
         // Compute A
@@ -274,4 +277,61 @@ where E::ScalarField : GpuField {
 
         res
     }
+}
+
+/// performs cloud msm on G1 elems.
+/// NOTE: This works only when base field of G1 is a prime field
+#[tokio::main]
+pub async fn cloud_msm<E: Pairing>(points: &Vec<E::G1Affine>, scalars: &Vec<E::ScalarField> ) -> E::G1Affine{
+    let size = ark_std::cmp::min(points.len(), scalars.len());
+    let mut points_as_big_int: Vec<BigUint> = vec![];
+    let mut scalar_as_big_int: Vec<BigUint> = vec![];
+
+    for i in 0..size{
+        if points[i].is_zero(){
+            continue;
+        }
+        points_as_big_int.push(points[i]
+                    .y()
+                    .unwrap()
+                    .to_base_prime_field_elements()
+                    .collect::<Vec<_>>()[0]
+                    .into_bigint()
+                    .into()
+                );
+        points_as_big_int.push(points[i]
+                    .x()
+                    .unwrap()
+                    .to_base_prime_field_elements()
+                    .collect::<Vec<_>>()[0]
+                    .into_bigint()
+                    .into()
+                );
+        scalar_as_big_int.push(scalars[i].into_bigint().into());
+    }
+    let mut points_bytes = vec![];
+    let mut scalar_bytes = vec![];
+    points_as_big_int.serialize_compressed(&mut points_bytes).unwrap();
+    scalar_as_big_int.serialize_compressed(&mut scalar_bytes).unwrap();
+
+    let cloud_res = p2p::funcs::get_res_from_cloud(points_bytes, scalar_bytes).await.unwrap();
+
+    let msm_res = E::G1Affine::deserialize_compressed(&*cloud_res).unwrap();
+    msm_res
+}
+
+#[test]
+fn test_msm(){
+    use rand_chacha::ChaCha20Rng;
+    use rand::SeedableRng;
+    let mut rng = ChaCha20Rng::from_entropy();
+    use ark_bls12_377 as E;
+    use ark_bls12_377::Bls12_377;
+    let points = vec![E::G1Affine::rand(&mut rng), E::G1Affine::rand(&mut rng)];
+    let scalars = vec![E::Fr::rand(&mut rng), E::Fr::rand(&mut rng)];
+
+    let cloud_res = cloud_msm::<Bls12_377>(&points, &scalars);
+    let actual_res = points[0] * scalars[0] + points[1] * scalars[1];
+
+    assert_eq!(cloud_res, actual_res.into_affine());
 }

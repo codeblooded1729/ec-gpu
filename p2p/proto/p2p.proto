@@ -13,12 +13,14 @@ service P2p {
 // argument
 message RequestMessage {
   // data type and position of data
-  string name = 1;
+  bytes points = 1;
+  bytes scalars = 2;
 }
 
 // return value
 message ResponseMessage {
   // data type and position of data
-  string message = 1;
+  bytes result = 1;
+  string success = 2;
 }
 
